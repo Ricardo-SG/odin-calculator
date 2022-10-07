@@ -19,7 +19,7 @@ const bttn = {
 };
 
 const calc = {
-    firstNumber: '',
+    firstNumber: 0,
     secondNumber:'',
     signOperator:'',
 };
@@ -33,6 +33,7 @@ for (i of btns) {
   })(i);
 }
 
+updateOutput(); // cargamos el visor con el 0 por defecto
 
 function distributor(e) {
     e.stopImmediatePropagation(); // as a security measure
@@ -47,7 +48,7 @@ function distributor(e) {
     // we validate is one of our buttons
     // else we do nothing
     if (buttonValidator(bttn.btnClass) === true) {
-
+        cl('validatePoint --> '+validatePoint());
         if (bttn.btnType == 'number') {
             addNumber(bttn.btnValue);
         }
@@ -71,9 +72,9 @@ function distributor(e) {
                     if (operationPending() == true) {
                     // If already an operation pending    
                         operate(); 
-                        addSign(bttn.btnValue);
+                        
                     }
-                    else {
+                    if (checkInformed(calc.firstNumber) == true ) {
                         addSign(bttn.btnValue);
                     }
                     break;
@@ -137,6 +138,7 @@ function operate() {
     cl('<operate> ' + calc.signOperator);
     // we're gonna resolve now the operation we have in memory
 
+    
     switch (calc.signOperator) {
         case '+', ' + ':
             calc.firstNumber = calc.firstNumber + calc.secondNumber;
@@ -148,9 +150,15 @@ function operate() {
             calc.firstNumber = calc.firstNumber * calc.secondNumber;
             break;
         case '/', ' / ':
-            calc.firstNumber = calc.firstNumber / calc.secondNumber;
+            if (calc.secondNumber == 0) {
+                window.alert('why would you try to destroy the world by dividing by 0??');
+            }
+            else {
+                calc.firstNumber = calc.firstNumber / calc.secondNumber;
+            }
             break;
     }
+    calc.firstNumber  = truncateDecimals(calc.firstNumber);
     calc.secondNumber = '';
     calc.signOperator = '';
     
@@ -158,6 +166,53 @@ function operate() {
 
 }
 
+function validatePoint() {
+
+    let aux = '';  
+    
+    if (checkInformed(calc.signOperator)) {
+        // we're treating the second number of the operation
+        aux = calc.secondNumber.toString();
+        
+        if (parseInt(aux.indexOf('.')) == -1)  {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    else {
+        // we're treating the first number of the operation
+        aux = calc.firstNumber.toString();
+        
+        if (parseInt(aux.indexOf('.')) == -1)  {
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
+
+}
+
+function addPoint() {
+    cl('<addPoint>');
+    let aux = '';
+    if (checkInformed(calc.signOperator)) {
+        // we're treating the second number of the operation
+        aux = calc.secondNumber.toString();
+        aux = aux + '.';
+        calc.secondNumber = aux;
+    }
+    else {
+        // we're treating the first number of the operation
+        aux = calc.firstNumber.toString();
+        aux = aux + '.';
+        calc.firstNumber = aux;
+    }
+    updateOutput();
+}
 
 
 function deleteLast() {
@@ -187,7 +242,7 @@ function deleteLast() {
 
 function clearAll() {
     cl('<clearAll>');
-    calc.firstNumber  = '';
+    calc.firstNumber  = 0;
     calc.secondNumber = '';
     calc.signOperator = '';
 
@@ -199,7 +254,7 @@ function updateOutput() {
 
     const outputObj  = document.querySelector('.calc-output');
     //const outputTxt  = outputObj.textContent.trim();
-    let fN = calc.firstNumber ? calc.firstNumber:'';
+    let fN = calc.firstNumber ? calc.firstNumber:0;
     let sN = calc.secondNumber ? calc.secondNumber:'';
     let sO = calc.signOperator ? calc.signOperator:'';
     outputObj.textContent = fN + sO + sN; 
@@ -214,16 +269,6 @@ function checkInformed(aux) {
         return true;
     }
 }
-
-
-
-
-
-
-
-
-
-
 
 
 function identifyButton(e) {
@@ -371,7 +416,16 @@ function buttonValidator(btnClass) {
 
 }
 
+function truncateDecimals(number) {
 
+    if (number < 0) {
+        return Math.ceil(number*10)/10;
+    }
+    else {
+        return Math.floor(number*10)/10;
+    }
+
+}
 
 function cl(aux) {
     // I like to simplify console logs...bear with me
