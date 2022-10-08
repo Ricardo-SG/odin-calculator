@@ -173,25 +173,16 @@ function validatePoint() {
     if (checkInformed(calc.signOperator)) {
         // we're treating the second number of the operation
         aux = calc.secondNumber.toString();
-        
-        if (parseInt(aux.indexOf('.')) == -1)  {
-            return true;
-        }
-        else {
-            return false;
-        }
     }
     else {
         // we're treating the first number of the operation
         aux = calc.firstNumber.toString();
-        
-        if (parseInt(aux.indexOf('.')) == -1)  {
-            return true;
-        }
-        else {
-            return false;
-        }
-
+    }
+    if (parseInt(aux.indexOf('.')) == -1)  {
+        return true;
+    }
+    else {
+        return false;
     }
 
 }
